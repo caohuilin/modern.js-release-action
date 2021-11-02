@@ -1,5 +1,8 @@
+import path from 'path';
 import execa from 'execa';
 import { fs, getPackageManager } from '@modern-js/utils';
+import { getPackages } from '@manypkg/get-packages';
+import packageJson from 'package-json';
 
 export function execaWithStreamLog(
   command: string,
@@ -79,4 +82,49 @@ registry=https://registry.npmjs.org/
 always-auth=true`,
     'utf-8',
   );
+};
+
+export const changeDependenceVersion = async (cwd: string = process.cwd()) => {
+  const { packages } = await getPackages(cwd);
+  const { version: testingPluginVersion } = await packageJson(
+    '@modern-js/plugin-testing',
+  );
+  const { version: moduleToolsVersion } = await packageJson(
+    '@modern-js/module-tools',
+  );
+  const { version: monorepoToolsVersion } = await packageJson(
+    '@modern-js/monorepo-tools',
+  );
+  for (const pkg of packages) {
+    const { dir } = pkg;
+    const pkgJSON = await fs.readJSON(path.join(dir, 'package.json'));
+    if (pkgJSON.devDependencies?.['@modern-js/plugin-testing']) {
+      pkgJSON.devDependencies['@modern-js/plugin-testing'] = `^${
+        testingPluginVersion as string
+      }`;
+    }
+    if (pkgJSON.dependencies?.['@modern-js/plugin-testing']) {
+      pkgJSON.dependencies['@modern-js/plugin-testing'] = `^${
+        testingPluginVersion as string
+      }`;
+    }
+    if (pkgJSON.devDependencies?.['@modern-js/module-tools']) {
+      pkgJSON.devDependencies['@modern-js/module-tools'] = `^${
+        moduleToolsVersion as string
+      }`;
+    }
+    if (pkgJSON.dependencies?.['@modern-js/module-tools']) {
+      pkgJSON.dependencies['@modern-js/module-tools'] = `^${
+        moduleToolsVersion as string
+      }`;
+    }
+    await fs.writeJSON(path.join(dir, 'package.json'), pkgJSON, 'utf-8');
+  }
+  const pkgJSON = await fs.readJSON(path.join(cwd, 'package.json'));
+  if (pkgJSON.devDependencies['@modern-js/monorepo-tools']) {
+    pkgJSON.devDependencies['@modern-js/monorepo-tools'] = `^${
+      monorepoToolsVersion as string
+    }`;
+    await fs.writeJSON(path.join(cwd, 'package.json'), pkgJSON, 'utf-8');
+  }
 };
