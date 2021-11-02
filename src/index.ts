@@ -24,6 +24,7 @@ import { bumpCanaryVersion, runInstall, runPrepare, runRelease } from './utils';
 
   const publishVersion = core.getInput('version');
 
+  console.info('publishVersion', publishVersion);
   // publish
   if (publishVersion === 'canary') {
     await bumpCanaryVersion(publishVersion);
