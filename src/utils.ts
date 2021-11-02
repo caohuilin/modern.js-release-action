@@ -1,5 +1,5 @@
 import execa from 'execa';
-import { getPackageManager } from '@modern-js/utils';
+import { fs, getPackageManager } from '@modern-js/utils';
 
 export function execaWithStreamLog(
   command: string,
@@ -68,6 +68,15 @@ export const runRelease = async (cwd: string = process.cwd(), tag?: string) => {
   }
   await execaWithStreamLog(packageManager, params, {
     cwd,
-    env: { NODE_AUTH_TOKEN: process.env.NPM_TOKEN },
   });
+};
+
+export const writeNpmrc = async () => {
+  await fs.writeFile(
+    '.npmrc',
+    `//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN as string}
+registry=https://registry.npmjs.org/
+always-auth=true`,
+    'utf-8',
+  );
 };

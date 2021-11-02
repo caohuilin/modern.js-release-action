@@ -1,7 +1,13 @@
 import * as core from '@actions/core';
 import fs from 'fs-extra';
 import { gitConfigUser, gitCommitAll, gitPushTags } from './git';
-import { bumpCanaryVersion, runInstall, runPrepare, runRelease } from './utils';
+import {
+  bumpCanaryVersion,
+  runInstall,
+  runPrepare,
+  runRelease,
+  writeNpmrc,
+} from './utils';
 
 (async () => {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -25,6 +31,7 @@ import { bumpCanaryVersion, runInstall, runPrepare, runRelease } from './utils';
   const publishVersion = core.getInput('version');
 
   console.info('publishVersion', publishVersion);
+  await writeNpmrc();
   // publish
   if (publishVersion === 'canary') {
     await bumpCanaryVersion(publishVersion);
