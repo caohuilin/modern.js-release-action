@@ -31,8 +31,10 @@ import { bumpCanaryVersion, runInstall, runPrepare, runRelease } from './utils';
     await gitCommitAll('publish canary');
     await runRelease(process.cwd(), 'canary');
   } else if (publishVersion === 'pre') {
+    await gitCommitAll('publish pre');
     await runRelease(process.cwd(), 'next');
   } else {
+    await gitCommitAll('publish latest');
     await runRelease();
   }
 
