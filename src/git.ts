@@ -20,6 +20,8 @@ export const gitPushTags = async () => {
 };
 
 export const gitCommitAll = async (message: string) => {
+  console.info('gitCommitAll');
   await execaWithStreamLog('git', ['add', '.']);
   await execaWithStreamLog('git', ['commit', '-m', message]);
+  await execaWithStreamLog('git', ['status']);
 };
